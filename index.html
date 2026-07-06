@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradePath | Premium GPA & CGPA Calculator</title>
+    
+    <!-- CSS Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Chart.js CDN for visual representations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Abstract visual backdrop elements -->
+        <div class="bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar glass">
+            <div>
+                <div class="brand">
+                    <span class="brand-icon">🎓</span>
+                    <span class="brand-name">GradePath</span>
+                </div>
+                <nav>
+                    <ul class="nav-links">
+                        <li class="nav-item active" data-tab="dashboard">
+                            <a href="#">
+                                <span class="nav-icon">📊</span>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" data-tab="semesters">
+                            <a href="#">
+                                <span class="nav-icon">📖</span>
+                                <span>Semesters</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" data-tab="predictor">
+                            <a href="#">
+                                <span class="nav-icon">🔮</span>
+                                <span>What-If Mode</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            
+            <div class="sidebar-footer">
+                <button class="theme-toggle" id="theme-toggle">
+                    <span class="theme-toggle-icon">☀️</span>
+                    <span>Light Mode</span>
+                </button>
+                <div style="font-size: 11px; text-align: center; color: var(--text-tertiary);">
+                    GradePath v1.0.0
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard Viewport -->
+        <main class="main-content">
+            <header>
+                <div class="welcome-section">
+                    <h1 id="page-title">Academic Portal</h1>
+                    <p>Track semesters, estimate future milestones, and export analytics.</p>
+                </div>
+                
+                <div class="actions-toolbar">
+                    <!-- Undo Redo States -->
+                    <button class="btn-icon" id="btn-undo" title="Undo Last Change" disabled>↩️</button>
+                    <button class="btn-icon" id="btn-redo" title="Redo" disabled>↪️</button>
+                    
+                    <!-- Export operations -->
+                    <div style="position: relative; display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" id="btn-export-pdf">
+                            <span>📄</span> PDF
+                        </button>
+                        <button class="btn btn-secondary" id="btn-export-csv">
+                            <span>📊</span> CSV
+                        </button>
+                        <button class="btn btn-secondary" id="btn-export-json">
+                            <span>⚙️</span> JSON
+                        </button>
+                        <button class="btn btn-secondary" id="btn-import-json" title="Import previously exported JSON file">
+                            <span>📤</span> Import JSON
+                        </button>
+                        <button class="btn btn-secondary" id="btn-clear-data" style="color: var(--accent-danger); border-color: rgba(239, 68, 68, 0.2);" title="Clear all stored data">
+                            <span>🗑️</span> Clear Data
+                        </button>
+                        <input type="file" id="import-file-input" style="display: none;" accept=".json">
+                    </div>
+                </div>
+            </header>
+
+            <!-- 1. DASHBOARD VIEW -->
+            <div id="dashboard-view" class="dashboard-layout">
+                <div class="content-area-main">
+                    <!-- Key Statistics Cards -->
+                    <section class="summary-grid">
+                        <div class="stat-card glass">
+                            <div class="stat-header">
+                                <span>Overall CGPA</span>
+                                <div class="stat-icon-bg" style="background: rgba(99, 102, 241, 0.15); color: var(--accent-primary);">📈</div>
+                            </div>
+                            <div class="stat-value" id="stat-cgpa">0.00</div>
+                            <div class="stat-footer">Cumulative performance</div>
+                        </div>
+
+                        <div class="stat-card glass">
+                            <div class="stat-header">
+                                <span>Percentage</span>
+                                <div class="stat-icon-bg" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-success);">✨</div>
+                            </div>
+                            <div class="stat-value" id="stat-percentage">0.0%</div>
+                            <div class="stat-footer">Formula: CGPA * 9.5</div>
+                        </div>
+
+                        <div class="stat-card glass">
+                            <div class="stat-header">
+                                <span>Total Credits</span>
+                                <div class="stat-icon-bg" style="background: rgba(56, 189, 248, 0.15); color: var(--accent-secondary);">⚡</div>
+                            </div>
+                            <div class="stat-value" id="stat-total-credits">0</div>
+                            <div class="stat-footer" id="credits-remaining-stat">Credits completed</div>
+                        </div>
+
+                        <div class="stat-card glass">
+                            <div class="stat-header">
+                                <span>GPA Extrems</span>
+                                <div class="stat-icon-bg" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-warning);">🔥</div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                <div class="stat-value" id="stat-highest-gpa" style="font-size: 24px; color: var(--accent-success);" title="Highest Semester GPA">0.00</div>
+                                <span style="color: var(--text-tertiary); font-size: 12px;">to</span>
+                                <div class="stat-value" id="stat-lowest-gpa" style="font-size: 24px; color: var(--accent-danger);" title="Lowest Semester GPA">0.00</div>
+                            </div>
+                            <div class="stat-footer">Highest vs Lowest GPA</div>
+                        </div>
+                    </section>
+
+                    <!-- Achievements Dashboard Section -->
+                    <section class="glass" style="padding: 20px;">
+                        <h2 class="panel-title">🏆 Academic Accomplishments</h2>
+                        <div class="badges-container" id="badges-container">
+                            <!-- Badges injected dynamically -->
+                        </div>
+                    </section>
+
+                    <!-- Main visuals row (Charts) -->
+                    <section class="glass" style="padding: 24px; display: flex; flex-direction: column; gap: 24px;">
+                        <div class="section-header">
+                            <h2 class="section-title">📊 Analytics Dashboard</h2>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px;">
+                            <div class="chart-wrapper">
+                                <div class="chart-title">GPA Performance Trend</div>
+                                <div class="chart-container">
+                                    <canvas id="gpaTrendChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper">
+                                <div class="chart-title">Subject Grade Distribution</div>
+                                <div class="chart-container">
+                                    <canvas id="gradeDistChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Sidebar Details -->
+                <div class="dashboard-sidebar">
+                    <!-- Progress Card -->
+                    <div class="sidebar-panel glass">
+                        <h2 class="panel-title">🎓 Graduation Check</h2>
+                        <div class="stat-footer" style="font-size: 14px; font-weight: 600; color: var(--text-primary);" id="stat-grad-status">
+                            Checking eligibility...
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="credit-progress-fill"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; margin-top: 6px; color: var(--text-tertiary);">
+                            <span>Progress</span>
+                            <span id="credit-progress-text">0 / 120 credits</span>
+                        </div>
+                    </div>
+
+                    <!-- Credits Distribution Bar Chart -->
+                    <div class="sidebar-panel glass">
+                        <h2 class="panel-title">📉 Semester Credits Load</h2>
+                        <div class="chart-container" style="height: 150px;">
+                            <canvas id="creditDistChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- History Timeline -->
+                    <div class="sidebar-panel glass">
+                        <h2 class="panel-title">🕰️ Academic History</h2>
+                        <div class="timeline" id="timeline-container">
+                            <!-- Timeline elements injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. SEMESTERS MANAGEMENT VIEW -->
+            <div id="semesters-view" class="content-area-main" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Semesters Listing</h2>
+                    <button class="btn btn-primary" id="btn-add-semester">
+                        <span>➕</span> Add Semester
+                    </button>
+                </div>
+                <div class="semesters-list" id="semesters-container">
+                    <!-- Semester cards injected here -->
+                </div>
+            </div>
+
+            <!-- 3. PREDICTOR / WHAT IF VIEW -->
+            <div id="predictor-view" class="dashboard-layout" style="display: none;">
+                <div class="sidebar-panel glass">
+                    <h2 class="panel-title">🔮 What-If Target Predictor</h2>
+                    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+                        Simulate how many grades or GPA average you need to maintain over your remaining semesters to reach your dream graduation CGPA.
+                    </p>
+                    <div class="sim-form">
+                        <div class="form-group">
+                            <label for="sim-target-cgpa">Target Cumulative CGPA (Scale of 10)</label>
+                            <input type="number" id="sim-target-cgpa" class="subject-input" placeholder="e.g. 8.5" min="0" max="10" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="sim-remaining-credits">Remaining Credits to Complete</label>
+                            <input type="number" id="sim-remaining-credits" class="subject-input" placeholder="e.g. 60" min="1" step="1">
+                        </div>
+                    </div>
+                    
+                    <div id="sim-result-box" class="sim-result">
+                        Enter numbers above to preview your simulation.
+                    </div>
+                </div>
+                
+                <div class="sidebar-panel glass" style="display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center;">
+                    <div style="font-size: 60px; margin-bottom: 20px;">🎯</div>
+                    <h3 style="font-family: var(--font-heading); margin-bottom: 12px;">Plan Your Future Academic Journey</h3>
+                    <p style="font-size: 13px; color: var(--text-tertiary); max-width: 320px; line-height: 1.6;">
+                        Changing target GPA and remaining credits calculations happens in real-time, pulling stats directly from your existing semesters.
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals Layout -->
+    <div class="modal-overlay" id="semester-modal">
+        <div class="modal-box glass">
+            <div class="modal-header">
+                <h3 class="modal-title">Rename Semester</h3>
+                <button class="modal-close" id="modal-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="modal-semester-name">Semester Name</label>
+                    <input type="text" id="modal-semester-name" class="subject-input" placeholder="e.g. Fall Semester">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+                <button class="btn btn-primary" id="modal-submit">Save changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script entry point -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
