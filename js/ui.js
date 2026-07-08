@@ -18,6 +18,7 @@ import {
 
 import { updateCharts } from './charts.js';
 import { predictFinalCGPA, calculateRequiredGPA } from './prediction.js';
+import { PlannerUI } from './planner/ui.js';
 
 // Dom cache
 let container = null;
@@ -28,6 +29,12 @@ export class UIManager {
         this.activeTab = 'dashboard';
         this.initDOMElements();
         this.bindEvents();
+        // Advanced planner UI for predictor view
+        try {
+            this.planner = new PlannerUI(this.app);
+        } catch (e) {
+            console.warn('Planner UI failed to initialize:', e);
+        }
     }
 
     initDOMElements() {
